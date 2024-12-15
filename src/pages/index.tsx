@@ -1,0 +1,598 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Hash, Settings, Users, Bell, ChevronDown, Plus, PlusCircle, Send, Mic, Image, MessageSquare, Book, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { TitleBar } from '@/components/TitleBar';
+import { TabBar } from '@/components/TabBar';
+import { MessageList } from '@/components/MessageList';
+import { MessageInput } from '@/components/MessageInput';
+import { StatusIndicator } from '@/components/StatusIndicator';
+import { UserSidebar } from '@/components/UserSidebar';
+
+// Types
+interface Category {
+  id: string;
+  name: string;
+  channels: Channel[];
+  isExpanded?: boolean;
+}
+
+interface Channel {
+  id: string;
+  name: string;
+  type: 'text' | 'voice' | 'gallery' | 'forum' | 'documentation';
+  unread?: boolean;
+  mentions?: number;
+}
+
+interface UserProfile {
+  id: number;
+  name: string;
+  status: 'online' | 'idle' | 'dnd' | 'offline';
+  avatar?: string;
+  customStatus?: string;
+  roles?: string[];
+}
+
+const ChannelIcon = ({ type }) => {
+  switch (type) {
+    case 'voice':
+      return <Mic size={18} className="mr-2 text-zinc-400" />;
+    case 'gallery':
+      return <Image size={18} className="mr-2 text-zinc-400" />;
+    case 'forum':
+      return <MessageSquare size={18} className="mr-2 text-zinc-400" />;
+    case 'documentation':
+      return <Book size={18} className="mr-2 text-zinc-400" />;
+    default:
+      return <Hash size={18} className="mr-2 text-zinc-400" />;
+  }
+};
+
+const UserPopover = ({ user }: { user: UserProfile }) => {
+  return (
+    <PopoverContent 
+      side="right" 
+      className="w-80 p-0 bg-zinc-900 border border-zinc-800 animate-in slide-in-from-left-1 duration-200"
+    >
+      {/* Banner */}
+      <div className="h-20 bg-gradient-to-r from-blue-500 to-purple-600" />
+      
+      {/* User Info */}
+      <div className="p-4">
+        <div className="flex items-start mb-4">
+          <div className="relative -mt-10">
+            <div className="w-20 h-20 rounded-full bg-zinc-800 border-4 border-zinc-900">
+              {user.avatar && <img src={user.avatar} alt="" className="w-full h-full rounded-full" />}
+            </div>
+            <StatusIndicator status={user.status} className="absolute bottom-0 right-0 w-6 h-6 border-4 border-zinc-900" />
+          </div>
+          <div className="ml-4 mt-2">
+            <h3 className="text-xl font-bold text-zinc-100">{user.name}</h3>
+            {user.customStatus && (
+              <p className="text-sm text-zinc-400">{user.customStatus}</p>
+            )}
+          </div>
+        </div>
+        
+        {/* Roles */}
+        {user.roles && user.roles.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-xs font-semibold text-zinc-400 uppercase mb-2">Roles</h4>
+            <div className="flex flex-wrap gap-2">
+              {user.roles.map(role => (
+                <span key={role} className="px-2 py-1 text-xs rounded bg-zinc-800 text-zinc-300">
+                  {role}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Actions */}
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1 bg-zinc-800 hover:bg-zinc-700">
+            Message
+          </Button>
+          <Button variant="outline" className="flex-1 bg-zinc-800 hover:bg-zinc-700">
+            Profile
+          </Button>
+        </div>
+      </div>
+    </PopoverContent>
+  );
+};
+
+export default function MessagingApp() {
+  // State management
+  const [categories, setCategories] = useState<Category[]>([
+    {
+      id: '1',
+      name: 'General',
+      isExpanded: true,
+      channels: [
+        { id: '1', name: 'welcome', type: 'text' },
+        { id: '2', name: 'announcements', type: 'text', mentions: 2 }
+      ]
+    },
+    {
+      id: '2',
+      name: 'Voice',
+      isExpanded: true,
+      channels: [
+        { id: '3', name: 'General Voice', type: 'voice' },
+        { id: '4', name: 'Music', type: 'voice' }
+      ]
+    }
+  ]);
+  
+  const [tabs, setTabs] = useState([
+    { 
+      id: '1',
+      state: {
+        selectedChannel: null,
+        messages: []
+      }
+    }
+  ]);
+  
+  const [activeTabId, setActiveTabId] = useState('1');
+  const [messageInput, setMessageInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showMemberList, setShowMemberList] = useState(true);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showChannelModal, setShowChannelModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newChannel, setNewChannel] = useState({ name: '', type: 'text' });
+  
+  const [users] = useState<UserProfile[]>([
+    { 
+      id: 1, 
+      name: 'Alice', 
+      status: 'online',
+      customStatus: '🎮 Playing Cyberpunk 2077',
+      roles: ['Admin', 'Moderator']
+    },
+    { 
+      id: 2, 
+      name: 'Bob', 
+      status: 'idle',
+      roles: ['Member']
+    },
+    { 
+      id: 3, 
+      name: 'Charlie', 
+      status: 'dnd',
+      customStatus: '🎯 Focused',
+      roles: ['Developer']
+    },
+    { 
+      id: 4, 
+      name: 'David', 
+      status: 'offline',
+      roles: ['Member']
+    }
+  ]);
+
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Category and Channel Management
+  const toggleCategory = (categoryId: string) => {
+    setCategories(categories.map(cat => 
+      cat.id === categoryId 
+        ? { ...cat, isExpanded: !cat.isExpanded }
+        : cat
+    ));
+  };
+
+  const addCategory = () => {
+    if (!newCategoryName.trim()) return;
+    
+    const newCategory: Category = {
+      id: Date.now().toString(),
+      name: newCategoryName,
+      channels: [],
+      isExpanded: true
+    };
+    
+    setCategories([...categories, newCategory]);
+    setNewCategoryName('');
+    setShowCategoryModal(false);
+  };
+
+  const addChannel = () => {
+    if (!newChannel.name.trim() || !selectedCategory) return;
+    
+    setCategories(categories.map(cat => 
+      cat.id === selectedCategory
+        ? {
+            ...cat,
+            channels: [...cat.channels, {
+              id: Date.now().toString(),
+              name: newChannel.name,
+              type: newChannel.type as Channel['type']
+            }]
+          }
+        : cat
+    ));
+    
+    setNewChannel({ name: '', type: 'text' });
+    setShowChannelModal(false);
+  };
+
+  // Message and Tab Management
+  const scrollToBottom = (smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+  };
+
+  useEffect(() => {
+    if (activeTab?.state.selectedChannel) {
+      scrollToBottom(false);
+    }
+  }, [activeTab?.state.messages]);
+
+  const addTab = () => {
+    const newTab = {
+      id: Date.now().toString(),
+      state: {
+        selectedChannel: null,
+        messages: []
+      }
+    };
+    setTabs([...tabs, newTab]);
+    setActiveTabId(newTab.id);
+  };
+
+  const closeTab = (tabId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (tabs.length === 1) return;
+    
+    const tabIndex = tabs.findIndex(tab => tab.id === tabId);
+    const newTabs = tabs.filter(tab => tab.id !== tabId);
+    
+    if (tabId === activeTabId) {
+      const newActiveIndex = Math.min(tabIndex, newTabs.length - 1);
+      setActiveTabId(newTabs[newActiveIndex].id);
+    }
+    
+    setTabs(newTabs);
+  };
+
+  const selectChannel = (channel: Channel) => {
+    const isNewChannel = activeTab.state.selectedChannel?.id !== channel.id;
+    const updatedMessages = isNewChannel ? [
+      { 
+        id: Date.now(),
+        author: 'System',
+        content: `Welcome to #${channel.name}!`,
+        timestamp: new Date().toLocaleTimeString(),
+        isSystem: true
+      }
+    ] : activeTab.state.messages;
+
+    setTabs(tabs.map(tab => 
+      tab.id === activeTabId
+        ? { 
+            ...tab, 
+            state: { 
+              selectedChannel: channel,
+              messages: updatedMessages
+            } 
+          }
+        : tab
+    ));
+  };
+
+  const sendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!messageInput.trim() || !activeTab.state.selectedChannel) return;
+
+    const newMessage = {
+      id: Date.now(),
+      author: 'You',
+      content: messageInput,
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    setTabs(tabs.map(tab => 
+      tab.id === activeTabId
+        ? {
+            ...tab,
+            state: {
+              ...tab.state,
+              messages: [...tab.state.messages, newMessage]
+            }
+          }
+        : tab
+    ));
+    setMessageInput('');
+  };
+
+  return (
+    <div className="flex flex-col h-screen overflow-hidden bg-black text-gray-100">
+      <TitleBar />
+      <TabBar
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onTabSelect={setActiveTabId}
+        onTabClose={closeTab}
+        onTabAdd={addTab}
+      />
+
+      <div className="flex flex-1 min-h-0">
+        {/* Categories and Channels Sidebar */}
+        <div className="w-64 bg-zinc-950 flex flex-col min-h-0">
+          <button className="p-3 border-b border-zinc-800 flex items-center justify-between hover:bg-zinc-900 transition-colors">
+            <h1 className="text-lg font-bold text-zinc-100">MessageHub</h1>
+            <ChevronDown size={20} className="text-zinc-400" />
+          </button>
+
+          <ScrollArea className="flex-1">
+            <div className="p-2">
+              {categories.map(category => (
+                <div key={category.id} className="mb-4">
+                  <button
+                    onClick={() => toggleCategory(category.id)}
+                    className="w-full text-sm text-zinc-400 font-semibold mb-1 px-2 flex items-center justify-between hover:text-zinc-300"
+                  >
+                    <div className="flex items-center">
+                      <ChevronDown
+                        size={16}
+                        className={cn(
+                          "mr-1 transition-transform",
+                          !category.isExpanded && "-rotate-90"
+                        )}
+                      />
+                      <span>{category.name.toUpperCase()}</span>
+                    </div>
+                    <Plus
+                      size={16}
+                      className="hover:text-zinc-200 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCategory(category.id);
+                        setShowChannelModal(true);
+                      }}
+                    />
+                  </button>
+                  
+                  {category.isExpanded && category.channels.map(channel => (
+                    <button
+                      key={channel.id}
+                      onClick={() => selectChannel(channel)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-2 py-1 rounded group hover:bg-zinc-800 transition-colors",
+                        activeTab?.state.selectedChannel?.id === channel.id && "bg-blue-500 bg-opacity-20 text-blue-400"
+                      )}
+                    >
+                      <div className="flex items-center">
+                        <ChannelIcon type={channel.type} />
+                        <span className={cn(
+                          "text-zinc-400 group-hover:text-zinc-300",
+                          channel.unread && "font-semibold text-zinc-100"
+                        )}>{channel.name}</span>
+                      </div>
+                      {channel.mentions && (
+                        <span className="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-xs">
+                          {channel.mentions}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+
+          <button
+            onClick={() => setShowCategoryModal(true)}
+            className="m-2 p-2 w-full text-sm text-zinc-400 flex items-center justify-center rounded hover:bg-zinc-800 transition-colors"
+          >
+            <Plus size={16} className="mr-2" />
+            Add Category
+          </button>
+
+          {/* User Status */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <div className="p-3 border-t border-zinc-800 flex items-center space-x-3 hover:bg-zinc-900 transition-colors cursor-pointer">
+                <div className="relative">
+                  <div className="w-8 h-8 rounded-full bg-zinc-800" />
+                  <StatusIndicator status="online" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold truncate">Your Name</div>
+                  <div className="text-xs text-zinc-400">online</div>
+                </div>
+                <div className="flex space-x-2 text-zinc-400">
+                  <button className="hover:text-zinc-200">
+                    <Bell size={18} />
+                  </button>
+                  <button className="hover:text-zinc-200">
+                    <Settings size={18} />
+                  </button>
+                </div>
+              </div>
+            </PopoverTrigger>
+            <UserPopover user={{
+              id: 0,
+              name: 'Your Name',
+              status: 'online',
+              customStatus: '🎮 Available',
+              roles: ['Member']
+            }} />
+          </Popover>
+        </div>
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {activeTab?.state.selectedChannel ? (
+            <>
+              <div className="h-12 border-b border-zinc-800 flex items-center justify-between px-4">
+                <div className="flex items-center">
+                  <ChannelIcon type={activeTab.state.selectedChannel.type} />
+                  <span className="font-semibold">{activeTab.state.selectedChannel.name}</span>
+                </div>
+                <div className="flex items-center space-x-4 text-zinc-400">
+                  <button 
+                    onClick={() => setShowMemberList(!showMemberList)}
+                    className={cn(
+                      "hover:text-zinc-200 transition-colors",
+                      showMemberList && "text-blue-400"
+                    )}
+                  >
+                    <Users size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <MessageList 
+                messages={activeTab.state.messages}
+                messagesEndRef={messagesEndRef}
+              />
+
+              <MessageInput
+                messageInput={messageInput}
+                isTyping={isTyping}
+                channelName={activeTab.state.selectedChannel.name}
+                onMessageChange={(value) => {
+                  setMessageInput(value);
+                  setIsTyping(true);
+                  setTimeout(() => setIsTyping(false), 1000);
+                }}
+                onSubmit={sendMessage}
+              />
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-zinc-500">
+              <div className="text-center space-y-4">
+                <Hash size={48} className="mx-auto text-zinc-600" />
+                <h2 className="text-xl font-semibold text-zinc-300">Welcome to MessageHub</h2>
+                <p className="text-sm">Select a channel to start messaging</p>
+                <div className="flex justify-center space-x-2">
+                  {categories[0]?.channels.slice(0, 3).map(channel => (
+                    <Button
+                      key={channel.id}
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => selectChannel(channel)}
+                    >
+                      <ChannelIcon type={channel.type} />
+                      {channel.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Members Sidebar */}
+        <UserSidebar 
+          users={users}
+          showMemberList={showMemberList}
+          UserCard={({ user }) => (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="w-full p-2 flex items-center space-x-3 rounded hover:bg-zinc-800 transition-colors">
+                  <div className="relative">
+                    <div className="w-8 h-8 rounded-full bg-zinc-800" />
+                    <StatusIndicator status={user.status} />
+                  </div>
+                  <span className="flex-1 text-left text-sm text-zinc-300">{user.name}</span>
+                </button>
+              </PopoverTrigger>
+              <UserPopover user={user} />
+            </Popover>
+          )}
+        />
+      </div>
+
+      {/* Category Modal */}
+      <Dialog open={showCategoryModal} onOpenChange={setShowCategoryModal}>
+        <DialogContent className="bg-zinc-900 text-zinc-100 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle>Create Category</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            placeholder="Category name"
+            className="bg-zinc-800 border-zinc-700"
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowCategoryModal(false)}
+              className="bg-zinc-800 hover:bg-zinc-700 border-zinc-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={addCategory}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Channel Modal */}
+      <Dialog open={showChannelModal} onOpenChange={setShowChannelModal}>
+        <DialogContent className="bg-zinc-900 text-zinc-100 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle>Create Channel</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              value={newChannel.name}
+              onChange={(e) => setNewChannel({ ...newChannel, name: e.target.value })}
+              placeholder="Channel name"
+              className="bg-zinc-800 border-zinc-700"
+            />
+            <Select
+              value={newChannel.type}
+              onValueChange={(value) => setNewChannel({ ...newChannel, type: value })}
+            >
+              <SelectTrigger className="bg-zinc-800 border-zinc-700">
+                <SelectValue placeholder="Channel type" />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-800 border-zinc-700">
+                <SelectItem value="text">Text Channel</SelectItem>
+                <SelectItem value="voice">Voice Channel</SelectItem>
+                <SelectItem value="gallery">Gallery Channel</SelectItem>
+                <SelectItem value="forum">Forum Channel</SelectItem>
+                <SelectItem value="documentation">Documentation Channel</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowChannelModal(false)}
+              className="bg-zinc-800 hover:bg-zinc-700 border-zinc-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={addChannel}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
