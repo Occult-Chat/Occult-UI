@@ -53,25 +53,22 @@ export function TitleBar() {
       <div className="flex items-center h-full px-3">
         <span className="text-sm font-semibold text-zinc-400">MessageHub</span>
       </div>
-      <div className="flex h-full" style={{ WebkitAppRegion: 'no-drag' }}>
+      <div className="flex h-full">
         <button
           onClick={onMinimize}
           className="h-full w-11 inline-flex items-center justify-center hover:bg-zinc-800 transition-colors"
-          style={{ WebkitAppRegion: 'no-drag' }}
         >
           <Minus size={16} />
         </button>
         <button
           onClick={onMaximize}
           className="h-full w-11 inline-flex items-center justify-center hover:bg-zinc-800 transition-colors"
-          style={{ WebkitAppRegion: 'no-drag' }}
         >
           <Square size={14} />
         </button>
         <button
           onClick={onClose}
           className="h-full w-11 inline-flex items-center justify-center hover:bg-red-500 transition-colors"
-          style={{ WebkitAppRegion: 'no-drag' }}
         >
           <X size={16} />
         </button>
