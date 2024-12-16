@@ -21,8 +21,8 @@
         "resizable": true,
         "decorations": false,
         "title": "Occult",
-        "width": 1280,
-        "height": 800,
+        "width": 1000,
+        "height": 700,
         "transparent": true,
         "minWidth": 1280,
         "minHeight": 800
