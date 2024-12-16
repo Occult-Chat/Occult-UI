@@ -8,17 +8,21 @@ export function TitleBar() {
     const initTauri = async () => {
       try {
         const { getCurrent } = await import("@tauri-apps/api/window");
-        setAppWindow(getCurrent());
+        const windowInstance = getCurrent();
+        console.log("Window instance initialized:", windowInstance);
+        setAppWindow(windowInstance);
       } catch (error) {
         console.error("Failed to initialize Tauri:", error);
       }
     };
-
+  
     initTauri();
   }, []);
+  
 
   const onMinimize = async () => {
     try {
+      console.log("minimize");
       await appWindow?.minimize();
     } catch (error) {
       console.error("Failed to minimize window:", error);
