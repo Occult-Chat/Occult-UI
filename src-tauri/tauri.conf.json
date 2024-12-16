@@ -7,7 +7,7 @@
     "distDir": "../out"
   },
   "package": {
-    "productName": "pulsar-engine",
+    "productName": "occult",
     "version": "0.1.0"
   },
   "tauri": {
@@ -26,7 +26,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.pulsar.dev",
+      "identifier": "io.github.occult-chat.occult",
       "longDescription": "",
       "resources": [],
       "shortDescription": "",
@@ -46,7 +46,6 @@
       "deb": {
         "depends": []
       }
-      
     },
     "security": {
       "csp": null
@@ -59,7 +58,7 @@
         "fullscreen": false,
         "resizable": true,
         "decorations": false,
-        "title": "Pulsar Engine",
+        "title": "Occult",
         "width": 1280,
         "height": 800,
         "transparent": true
