@@ -6,7 +6,6 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
 
-
 #[tauri::command]
 fn on_button_clicked() -> String {
     let start = SystemTime::now();
@@ -16,6 +15,8 @@ fn on_button_clicked() -> String {
         .as_millis();
     format!("on_button_clicked called from Rust! (timestamp: {since_the_epoch}ms)")
 }
+#[tauri::command]
+fn minimize() {}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 fn main() {
@@ -25,6 +26,7 @@ fn main() {
             let window = app.get_window("main").unwrap();
             // Hide the titlebar
             window.set_decorations(false).unwrap();
+            // window.set_fullscreen(true).unwrap();
             Ok(())
         })
         .run(tauri::generate_context!())
