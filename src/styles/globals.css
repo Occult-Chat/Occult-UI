@@ -68,3 +68,10 @@ a {
 .hide-scrollbar:hover::-webkit-scrollbar {
   display: block;
 }
+
+.mask-broom {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cline x1='50' y1='20' x2='50' y2='80' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M30 80 C30 80, 50 85, 70 80 L75 95 C75 95, 50 100, 25 95 Z' fill='white'/%3E%3C/svg%3E");
+  mask-size: 75% 75%;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}

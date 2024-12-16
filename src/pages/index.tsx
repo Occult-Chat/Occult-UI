@@ -459,9 +459,34 @@ export default function MessagingApp() {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-black text-gray-100">
+    <div className="flex flex-col h-screen overflow-hidden bg-black text-gray-100 rounded-lg">
       <TitleBar/>
-      <TabBar
+
+      <div className="flex flex-1 min-h-0">
+        {/* Servers Sidebar */}
+        <div className="bg-zinc-950 flex flex-col items-center m-2 mr-0 space-y-4 rounded-md p-2">
+          <div className="flex-1 overflow-y-auto flex flex-col items-center space-y-4">
+            <Button variant="outline" className="mask-broom w-12 h-12 p-0 rounded-lg hover:bg-blue-950 bg-white"/>
+            {/* Example server icons */}
+            <Button variant="outline" className="w-12 h-12 p-0 rounded-lg bg-zinc-800 hover:bg-zinc-700">
+              <img src="https://via.placeholder.com/48" alt="Server 1" className="w-full h-full rounded-lg" />
+            </Button>
+            <Button variant="outline" className="w-12 h-12 p-0 rounded-lg bg-zinc-800 hover:bg-zinc-700">
+              <img src="https://via.placeholder.com/48" alt="Server 2" className="w-full h-full rounded-lg" />
+            </Button>
+            <Button variant="outline" className="w-12 h-12 p-0 rounded-lg bg-zinc-800 hover:bg-zinc-700">
+              <img src="https://via.placeholder.com/48" alt="Server 3" className="w-full h-full rounded-lg" />
+            </Button>
+          </div>
+          <Button variant="outline" className="w-12 h-12 p-0 rounded-lg bg-zinc-800 hover:bg-zinc-700">
+            <Plus size={24} />
+          </Button>
+        </div>
+
+      {/* Tab Layout */}
+      <div className="flex-1 flex flex-col min-h-0 m-2 rounded-md">
+
+        <TabBar
         tabs={tabs}
         activeTabId={activeTabId}
         onTabSelect={setActiveTabId}
@@ -471,7 +496,7 @@ export default function MessagingApp() {
 
       <div className="flex flex-1 min-h-0">
         {/* Categories and Channels Sidebar */}
-        <div className="w-64 bg-zinc-950 flex flex-col min-h-0">
+        <div className="w-64 bg-zinc-950 flex flex-col min-h-0  rounded-b-md">
           <button className="p-3 border-b border-zinc-800 flex items-center justify-between hover:bg-zinc-900 transition-colors">
             <h1 className="text-lg font-bold text-zinc-100">MessageHub</h1>
             <ChevronDown size={20} className="text-zinc-400" />
@@ -574,8 +599,10 @@ export default function MessagingApp() {
           </Popover>
         </div>
 
+
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col min-h-0">
+
           {activeTab?.state.selectedChannel ? (
             <>
               <div className="h-12 border-b border-zinc-800 flex items-center justify-between px-4">
@@ -643,6 +670,8 @@ export default function MessagingApp() {
           showMemberList={showMemberList}
         />
       </div>
+    </div>
+    </div>
 
       {/* Category Modal */}
       <Dialog open={showCategoryModal} onOpenChange={setShowCategoryModal}>
