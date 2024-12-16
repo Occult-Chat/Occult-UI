@@ -460,11 +460,7 @@ export default function MessagingApp() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-black text-gray-100">
-      <TitleBar 
-        onMinimize={() => {}}
-        onMaximize={() => {}}
-        onClose={() => {}}
-      />
+      <TitleBar/>
       <TabBar
         tabs={tabs}
         activeTabId={activeTabId}
