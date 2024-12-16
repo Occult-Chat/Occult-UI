@@ -47,7 +47,7 @@ export function TitleBar() {
   return (
     <div
       className="h-7 min-h-[28px] bg-zinc-950 flex items-center justify-between border-b border-zinc-800 drag-region"
-      data-tauri-drag
+      data-tauri-drag-region 
     >
       <div className="flex items-center h-full px-3">
         <span className="text-sm font-semibold text-zinc-400">MessageHub</span>
