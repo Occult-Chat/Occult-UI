@@ -50,7 +50,8 @@ export function TitleBar() {
       data-tauri-drag-region
     >
       <div className="flex items-center h-full px-3">
-        <span className="text-sm font-semibold text-zinc-400">MessageHub</span>
+        <div className="w-8 h-6 bg-white mask-broom transform rotate-45"></div>
+        <span className="text-sm font-semibold text-zinc-400">Occult</span>
       </div>
       <div className="flex h-full">
         <button
