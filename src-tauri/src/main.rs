@@ -23,9 +23,10 @@ fn main() {
     tauri::Builder::default()
         // Add window decorations configuration
         .setup(|app| {
-            let window = app.get_window("main").unwrap();
+            let window = app.get_webview_window("main").unwrap();
             // Hide the titlebar
             window.set_decorations(false).unwrap();
+            window.set_shadow(false).unwrap();
             // window.set_fullscreen(true).unwrap();
             Ok(())
         })
