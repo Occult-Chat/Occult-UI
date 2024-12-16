@@ -1,7 +1,14 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { StatusIndicator } from './StatusIndicator';
-import { Message } from '@/types';
+
+interface Message {
+  id: string;
+  author: string;
+  content: string;
+  timestamp: string;
+  isSystem: boolean;
+}
 
 
 export const MessageList = ({
