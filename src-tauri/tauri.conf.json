@@ -21,11 +21,11 @@
         "resizable": true,
         "decorations": false,
         "title": "Occult",
-        "width": 1000,
-        "height": 700,
+        "width": 1280,
+        "height": 800,
         "transparent": true,
-        "minWidth": 1280,
-        "minHeight": 800
+        "minWidth": 1000,
+        "minHeight": 700
       }
     ]
   },
