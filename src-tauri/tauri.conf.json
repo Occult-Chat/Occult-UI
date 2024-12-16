@@ -23,7 +23,9 @@
         "title": "Occult",
         "width": 1280,
         "height": 800,
-        "transparent": true
+        "transparent": true,
+        "minWidth": 1280,
+        "minHeight": 800
       }
     ]
   },
