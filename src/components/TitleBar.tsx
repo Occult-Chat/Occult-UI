@@ -1,16 +1,15 @@
 import { Minus, Square, X } from "lucide-react";
 import { useEffect, useState } from "react";
-
+import { getCurrentWindow } from '@tauri-apps/api/window';
 export function TitleBar() {
   const [appWindow, setAppWindow] = useState<any>(null);
 
   useEffect(() => {
     const initTauri = async () => {
       try {
-        const { getCurrent } = await import("@tauri-apps/api/window");
-        const windowInstance = getCurrent();
-        console.log("Window instance initialized:", windowInstance);
-        setAppWindow(windowInstance);
+        const appWindow = getCurrentWindow();
+        console.log("Window instance initialized:", appWindow);
+        setAppWindow(appWindow);
       } catch (error) {
         console.error("Failed to initialize Tauri:", error);
       }
