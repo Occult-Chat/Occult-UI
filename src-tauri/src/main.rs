@@ -3,9 +3,9 @@
     windows_subsystem = "windows"
 )]
 
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{env, time::{SystemTime, UNIX_EPOCH}};
 use tauri::Manager;
-use workspace::get_working_dir;
+use workspace::{get_working_dir, CONFIG};
 pub mod workspace;
 pub mod commands;
 #[tauri::command]
@@ -22,7 +22,12 @@ fn minimize() {}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 fn main() {
+    env::set_var("RUST_LOG", "debug");
+    env_logger::init();
     println!("{}",get_working_dir().unwrap().display());
+    let size = &CONFIG.read().window_size;
+
+    println!("{size:#?}");
     tauri::Builder::default()
         // Add window decorations configuration
         .setup(|app| {

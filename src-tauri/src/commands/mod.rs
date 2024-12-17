@@ -1,7 +1,10 @@
 use anyhow::{Ok, Result};
 
-fn update_window_size(width: i64,height: i64) -> Result<()> {
+use crate::workspace::CONFIG;
 
-
-    Ok(())
+#[tauri::command]
+fn get_config() -> Result<String> {
+    let config = CONFIG.read();
+    let config_json = serde_json::to_string(&*config)?;
+    Ok(config_json)
 }
