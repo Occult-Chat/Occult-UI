@@ -12,6 +12,7 @@ export interface User {
   pronouns?: string;
   description?: string;
   joinedAt: string;
+  profilePictureUrl?: string;
   activities?: {
     type: 'gaming' | 'listening' | 'streaming' | 'custom';
     name: string;
@@ -111,14 +112,14 @@ const UserProfile = ({
       }}
     >
       {/* Banner with Profile Picture */}
-      <div className="relative h-32">
+      <div className="relative h-16">
         {/* Banner Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 animate-in zoom-in-95 duration-300" />
         
         {/* Profile Picture Container */}
         <div className="absolute -bottom-10 left-4">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-zinc-800 border-4 border-zinc-900" />
+            <img className="w-20 h-20 rounded-full bg-zinc-800 border-4 border-zinc-900" src={user.profilePictureUrl || 'https://picsum.photos/200/300'} alt={`${user.name}'s profile`} />
             <div className="absolute bottom-0 right-0">
               <StatusIndicator status={user.status} />
             </div>
@@ -303,7 +304,7 @@ const UserSection = ({
         className="flex items-center w-full py-1.5 px-2 rounded hover:bg-zinc-800 transition-colors"
       >
         <div className="relative">
-          <div className="w-7 h-7 rounded-full bg-zinc-800" />
+          <img className="w-7 h-7 rounded-full bg-zinc-800" src='https://picsum.photos/200/300' />
           <StatusIndicator status={user.status} />
         </div>
         <span className={cn(
@@ -341,7 +342,7 @@ const UserSidebar = ({ users, showMemberList }: UserSidebarProps) => {
   };
 
   return (
-    <div className="w-64 bg-zinc-950 flex flex-col min-h-0 border-l border-zinc-800">
+    <div className="w-64 bg-zinc-950 flex flex-col min-h-0 border-l border-zinc-800 overflow-hidden">
       <div className="p-3 flex items-center text-zinc-400 font-semibold border-b border-zinc-800">
         <Users size={18} className="mr-2" />
         ONLINE — {users.filter(u => u.status !== 'offline').length}

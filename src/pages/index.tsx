@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TitleBar } from '@/components/TitleBar';
 import { TabBar } from '@/components/TabBar';
-import UserSidebar from '@/components/UserSidebar';
+import UserSidebar, { User } from '@/components/UserSidebar';
 import ServersSidebar from '@/components/ServersList';
 import ChannelSection from '@/components/ChannelList';
 import ChatArea from '@/components/ChatArea';
@@ -333,7 +333,7 @@ export default function MessagingApp() {
     ));
   };
 
-  const handleMessageSubmit = (e: React.FormEvent) => {
+  const handleMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeTab || !messageInput.trim() || !activeTab.state.selectedChannel) return;
 
@@ -345,31 +345,49 @@ export default function MessagingApp() {
       isSystem: false
     };
 
-    setTabs(tabs.map(tab => 
-      tab.id === activeTabId
+    let JSONMessage = JSON.stringify(newMessage);
+
+    try {
+      await fetch('https://your-api-endpoint.com/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSONMessage
+      });
+      
+      console.log('Message sent:', JSONMessage);
+      
+      setTabs(tabs.map(tab => 
+        tab.id === activeTabId
         ? {
-            ...tab,
-            state: {
-              ...tab.state,
-              messages: [...tab.state.messages, newMessage]
-            }
+          ...tab,
+          state: {
+            ...tab.state,
+            messages: [...tab.state.messages, newMessage]
           }
+        }
         : tab
-    ));
-    setMessageInput('');
+      ));
+      setMessageInput('');
+    } catch (error) {
+      console.error('Error posting message:', error);
+      console.log('Message Data: ', JSONMessage);
+    }
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-black text-gray-100 rounded-lg">
+    <div className="flex flex-col h-screen bg-black text-gray-100 rounded-lg overflow-hidden">
       <TitleBar />
 
       <div className="flex flex-1 min-h-0">
         <ServersSidebar 
           currentUser={{
             id: '0',
-            name: 'Your Name',
+            name: 'Trident_For_U',
+            avatar: 'https://avatars.githubusercontent.com/u/34868944?v=4',
             status: 'online',
-            customStatus: '🎮 Available',
+            customStatus: 'Cooking some insane Rust project probably',
             joinedAt: '2023-01-01',
             roles: [{ id: 'r1', name: 'Member', color: '#4444ff' }]
           }}
@@ -386,7 +404,7 @@ export default function MessagingApp() {
             />
           </div>
 
-          <div className="flex flex-1 min-h-0">
+          <div className="flex flex-1 min-h-0 overflow-hidden">
             <ChannelSection
               categories={categories}
               selectedChannelId={activeTab?.state.selectedChannel?.id}
