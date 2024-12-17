@@ -5,7 +5,9 @@
 
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
-
+use workspace::get_working_dir;
+pub mod workspace;
+pub mod commands;
 #[tauri::command]
 fn on_button_clicked() -> String {
     let start = SystemTime::now();
@@ -20,6 +22,7 @@ fn minimize() {}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 fn main() {
+    println!("{}",get_working_dir().unwrap().display());
     tauri::Builder::default()
         // Add window decorations configuration
         .setup(|app| {
