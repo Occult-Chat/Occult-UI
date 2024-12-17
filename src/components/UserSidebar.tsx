@@ -118,7 +118,7 @@ const UserProfile = ({
         {/* Profile Picture Container */}
         <div className="absolute -bottom-10 left-4">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-zinc-800 border-4 border-zinc-900" />
+            <img className="w-20 h-20 rounded-full bg-zinc-800 border-4 border-zinc-900" src={user.profilePictureUrl || 'https://picsum.photos/200/300'} alt={`${user.name}'s profile`} />
             <div className="absolute bottom-0 right-0">
               <StatusIndicator status={user.status} />
             </div>
@@ -303,7 +303,7 @@ const UserSection = ({
         className="flex items-center w-full py-1.5 px-2 rounded hover:bg-zinc-800 transition-colors"
       >
         <div className="relative">
-          <div className="w-7 h-7 rounded-full bg-zinc-800" />
+          <img className="w-7 h-7 rounded-full bg-zinc-800" src='https://picsum.photos/200/300' />
           <StatusIndicator status={user.status} />
         </div>
         <span className={cn(

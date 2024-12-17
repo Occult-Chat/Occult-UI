@@ -30,13 +30,13 @@ const ServersSidebar: React.FC<ServersSidebarProps> = ({ currentUser }) => {
         />
         {/* Example server icons */}
         <Button variant="outline" className="w-12 h-12 p-0 rounded-lg bg-zinc-800 hover:bg-zinc-700">
-          <img src="/api/placeholder/48/48" alt="Server 1" className="w-full h-full rounded-lg" />
+          <img src="https://picsum.photos/200/310" alt="Server 1" className="w-full h-full rounded-lg" />
         </Button>
         <Button variant="outline" className="w-12 h-12 p-0 rounded-lg bg-zinc-800 hover:bg-zinc-700">
-          <img src="/api/placeholder/48/48" alt="Server 2" className="w-full h-full rounded-lg" />
+          <img src="https://picsum.photos/200/320" alt="Server 2" className="w-full h-full rounded-lg" />
         </Button>
         <Button variant="outline" className="w-12 h-12 p-0 rounded-lg bg-zinc-800 hover:bg-zinc-700">
-          <img src="/api/placeholder/48/48" alt="Server 3" className="w-full h-full rounded-lg" />
+          <img src="https://picsum.photos/200/330" alt="Server 3" className="w-full h-full rounded-lg" />
         </Button>
       </div>
 
