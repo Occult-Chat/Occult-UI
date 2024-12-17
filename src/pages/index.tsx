@@ -333,7 +333,7 @@ export default function MessagingApp() {
     ));
   };
 
-  const handleMessageSubmit = (e: React.FormEvent) => {
+  const handleMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeTab || !messageInput.trim() || !activeTab.state.selectedChannel) return;
 
@@ -345,18 +345,35 @@ export default function MessagingApp() {
       isSystem: false
     };
 
-    setTabs(tabs.map(tab => 
-      tab.id === activeTabId
+    let JSONMessage = JSON.stringify(newMessage);
+
+    try {
+      await fetch('https://your-api-endpoint.com/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSONMessage
+      });
+      
+      console.log('Message sent:', JSONMessage);
+      
+      setTabs(tabs.map(tab => 
+        tab.id === activeTabId
         ? {
-            ...tab,
-            state: {
-              ...tab.state,
-              messages: [...tab.state.messages, newMessage]
-            }
+          ...tab,
+          state: {
+            ...tab.state,
+            messages: [...tab.state.messages, newMessage]
           }
+        }
         : tab
-    ));
-    setMessageInput('');
+      ));
+      setMessageInput('');
+    } catch (error) {
+      console.error('Error posting message:', error);
+      console.log('Message Data: ', JSONMessage);
+    }
   };
 
   return (
