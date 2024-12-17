@@ -541,12 +541,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0 top-3 bg-black/10 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative flex w-[1200px] mx-auto my-10 rounded-xl overflow-hidden bg-zinc-400/1 backdrop-blur-xl backdrop-saturate-150">
+      <div className="relative flex w-[1200px] mx-auto my-10 rounded-xl overflow-hidden bg-zinc-400/10 backdrop-blur-xl backdrop-saturate-150">
         {/* Sidebar */}
         <div className="w-64 border-r border-zinc-800/50 p-4 flex flex-col">
           <div className="flex items-center justify-between mb-6">
