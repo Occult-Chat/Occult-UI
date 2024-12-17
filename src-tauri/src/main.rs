@@ -24,11 +24,14 @@ fn minimize() {}
 fn main() {
     env::set_var("RUST_LOG", "debug");
     env_logger::init();
-    println!("{}",get_working_dir().unwrap().display());
-    let size = &CONFIG.read().window_size;
 
-    println!("{size:#?}");
     tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![
+        commands::get_config,
+        commands::get_cache,
+        commands::set_config,
+        commands::set_cache
+    ])
         // Add window decorations configuration
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();

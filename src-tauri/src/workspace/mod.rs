@@ -1,15 +1,11 @@
-use config::AllowList;
 use config::AppearanceConfig;
 use config::NotificationConfig;
 use config::PrivacyConfig;
 use config::VVConfig;
 use parking_lot::RwLock;
-use std::cell::Cell;
-use std::cell::RefCell;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::anyhow;
@@ -32,7 +28,6 @@ pub enum ConfigError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ClientConfig {
-    pub window_size: WindowSize<u32>,
     pub log_level: log::LevelFilter,
     pub notification_settings: NotificationConfig,
     pub voice_video_settings: VVConfig,
@@ -41,18 +36,21 @@ pub struct ClientConfig {
     pub appearance: AppearanceConfig,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize,Default)]
 pub enum WindowSize<T> {
+    #[default]
     Default,
     Custom { width: T, height: T },
 }
+#[derive(Debug, Clone, Serialize, Deserialize,Default)]
+pub struct ClientCache {
+    pub window_size: WindowSize<u32>,
+}
+
+
 impl Default for ClientConfig {
     fn default() -> Self {
         Self {
-            window_size: WindowSize::Custom {
-                width: 1280,
-                height: 720,
-            },
             log_level: log::LevelFilter::Info,
             notification_settings: NotificationConfig {
                 direct_messages: true,
@@ -135,6 +133,53 @@ lazy_static! {
             None => {
                 println!("Invalid config path");
                 ClientConfig::default()
+            }
+        };
+
+        RwLock::new(config)
+    };
+    pub static ref CACHE: RwLock<ClientCache> = {
+        let mut config_path = get_working_dir().expect("failure to get working directory");
+        config_path.push(".occult.cache.toml");
+
+        let config = match config_path.parent() {
+            Some(parent_dir) => {
+                // Ensure parent directory exists
+                fs::create_dir_all(parent_dir).expect("Failed to create config directory");
+
+                // Try to read existing config
+                match fs::read_to_string(&config_path) {
+                    Ok(contents) => match toml::from_str(&contents) {
+                        Ok(parsed_config) => {
+                            println!("Read configuration");
+                            parsed_config
+                        },
+                        Err(e) => {
+                            println!("Failed to parse cache: {}", e);
+                            ClientCache::default()
+                        }
+                    },
+                    Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                        // File does not exist (first run), create default config
+                        let default_config = ClientCache::default();
+                        let default_toml = toml::to_string_pretty(&default_config)
+                            .expect("Failed to serialize default cache");
+
+                        fs::write(&config_path, default_toml)
+                            .expect("Failed to write default cache");
+
+                        default_config
+                    },
+                    Err(_) => {
+                        // Other read errors (permissions, etc.)
+                        println!("Failed to read cache file");
+                        ClientCache::default()
+                    }
+                }
+            },
+            None => {
+                println!("Invalid config path");
+                ClientCache::default()
             }
         };
 
