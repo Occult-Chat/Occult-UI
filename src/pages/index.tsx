@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TitleBar } from '@/components/TitleBar';
 import { TabBar } from '@/components/TabBar';
-import UserSidebar from '@/components/UserSidebar';
+import UserSidebar, { User } from '@/components/UserSidebar';
 import ServersSidebar from '@/components/ServersList';
 import ChannelSection from '@/components/ChannelList';
 import ChatArea from '@/components/ChatArea';
@@ -377,16 +377,17 @@ export default function MessagingApp() {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-black text-gray-100 rounded-lg">
+    <div className="flex flex-col h-screen bg-black text-gray-100 rounded-lg overflow-hidden">
       <TitleBar />
 
       <div className="flex flex-1 min-h-0">
         <ServersSidebar 
           currentUser={{
             id: '0',
-            name: 'Your Name',
+            name: 'Trident_For_U',
+            avatar: 'https://avatars.githubusercontent.com/u/34868944?v=4',
             status: 'online',
-            customStatus: '🎮 Available',
+            customStatus: 'Cooking some insane Rust project probably',
             joinedAt: '2023-01-01',
             roles: [{ id: 'r1', name: 'Member', color: '#4444ff' }]
           }}
@@ -403,7 +404,7 @@ export default function MessagingApp() {
             />
           </div>
 
-          <div className="flex flex-1 min-h-0">
+          <div className="flex flex-1 min-h-0 overflow-hidden">
             <ChannelSection
               categories={categories}
               selectedChannelId={activeTab?.state.selectedChannel?.id}
