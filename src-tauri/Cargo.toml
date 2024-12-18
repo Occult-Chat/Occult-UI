@@ -24,7 +24,7 @@ display-info = "0.5.2"
 scrap = "0.5.0"
 snap = "1.1.1"
 base64 = "0.22.1"
-image = "0.24.9"
+image = "0.25.5"
 screenshots = "0.8.10"
 
 [features]

@@ -47,7 +47,7 @@ export function TitleBar() {
   return (
     <div
       className="h-7 min-h-[28px] bg-zinc-950 flex items-center justify-between border-b border-zinc-800 drag-region"
-      data-tauri-drag-region
+      data-tauri-drag-region 
     >
       <div className="flex items-center h-full px-3">
         <div className="w-8 h-6 bg-white mask-broom transform rotate-45"></div>
