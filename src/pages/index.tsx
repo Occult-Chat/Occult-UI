@@ -8,6 +8,21 @@ import ChatArea from '@/components/ChatArea';
 import CategoryModal from '@/components/NewCategoryModal';
 import ChannelModal from '@/components/ChannelModal';
 import SearchOverlay from '@/components/SearchOverlay';
+import ScreenMirror from '@/components/ScreenMirror';
+import CallPanel from '@/components/CallPanel';
+
+const participants = [
+  {
+    id: '1',
+    name: 'John Doe',
+    isVideoOn: true,
+    isAudioOn: true,
+    isScreenSharing: false,
+    isPinned: false
+  },
+  // ... more participants
+];
+
 
 // Types
 interface Message {
@@ -417,7 +432,7 @@ export default function MessagingApp() {
               onAddCategory={() => setShowCategoryModal(true)}
             />
 
-            <ChatArea
+            {/* <ChatArea
               selectedChannel={activeTab?.state.selectedChannel}
               messages={activeTab?.state.messages || []}
               messageInput={messageInput}
@@ -433,7 +448,17 @@ export default function MessagingApp() {
               onChannelSelect={handleSelectChannel}
               messagesEndRef={messagesEndRef}
               defaultChannels={categories[0]?.channels}
-            />
+            /> */}
+
+
+              <CallPanel
+                participants={participants}
+                currentUserId="1"
+                onToggleVideo={() => {}}
+                onToggleAudio={() => {}}
+                onShareScreen={() => {}}
+                onLeaveCall={() => {}}
+              />
 
             <UserSidebar users={users} showMemberList={showMemberList} />
           </div>
@@ -441,7 +466,7 @@ export default function MessagingApp() {
       </div>
 
       <SearchOverlay
-        isOpen={showSearch}
+        isOpen={showSearch}a
         onClose={() => setShowSearch(false)}
         onSearch={(query) => {
           console.log('Searching for:', query);

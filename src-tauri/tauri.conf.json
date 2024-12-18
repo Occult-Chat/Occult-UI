@@ -12,7 +12,19 @@
   },
   "app": {
     "security": {
-      "csp": null,
+      "dangerousDisableAssetCspModification": ["style-src"],
+      "csp": {
+        "default-src": "'self' customprotocol: asset:",
+        "connect-src": "ipc: http://ipc.localhost",
+        "font-src": ["https://fonts.gstatic.com"],
+        "img-src": "'self' asset: http://asset.localhost blob: data:",
+        "style-src": "'unsafe-inline' 'self' https://fonts.googleapis.com",
+        "media-src": "'self' mediadevice: blob:",
+        "child-src": "'self' blob:",
+        "worker-src": "'self' blob:",
+        "script-src": "'self' 'unsafe-inline' 'unsafe-eval'",
+        "frame-src": "'self' mediadevice: blob:"
+      },
       "capabilities": ["main-capability"]
     },
     "windows": [
